@@ -38,13 +38,37 @@ router.post('/events/:name/:uid', (req, res, next) => {
   })
 })
 
+router.get('/events/:name/:uid/:id', (req, res, next) => {
+  models.Event.findOne({
+    where: {
+      name: req.params.name,
+      uid: req.params.uid,
+      id: req.params.id,
+    }
+  })
+  .then(queryResult => {
+    if (queryResult.dataValues) {
+      res
+      .status(200).json({event: queryResult.dataValues})
+    } else {
+      return jsonError.call(res, 404, 'Not found')
+    }
+  })
+  .catch(error => {
+    return jsonError.call(res, 500, error)
+  })
+})
+
 const defaultLimit = 100
 const defaultOffset = 0
-// accepts query params:
-// limit
-// offset
-router.get('/events/:name', (req, res, next) => {
+router.get('/events/:name/:uid*?', (req, res, next) => {
   const where = {name: req.params.name}
+  if (req.params.uid) {
+    where.uid = req.params.uid
+  }
+  if (req.params.id) {
+    where.id = req.params.id
+  }
   const limit = req.query.limit || defaultLimit
   const offset = req.query.offset || defaultOffset
   const order = '"createdAt" DESC'
@@ -62,7 +86,6 @@ router.get('/events/:name', (req, res, next) => {
     })
   })
   .catch(error => {
-    console.log(error)
     return jsonError.call(res, 500, error)
   })
 })

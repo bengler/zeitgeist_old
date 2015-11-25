@@ -96,6 +96,36 @@ describe('POST /events/:name/:uid', () => {
   it('requires an identity')
 })
 
+describe('GET /events/:name/:uid/:id', () => {
+  beforeEach(done => {
+    models.Event.sync({force: true}) // drops table and re-creates it
+    .then(() => {
+      return models.Event.bulkCreate([
+        {id: 29, createdAt: 0, updatedAt: 0, uid, name: 'applause', document: {first: true}},
+      ])
+    })
+    .then(() => done()).catch(error => done(error))
+  })
+
+  it('returns the event requested', done => {
+    request(app)
+    .get(`/events/applause/${uid}/29`)
+    .expect(res => {
+      // Remove these since they change
+      delete res.body.event.createdAt
+      delete res.body.event.updatedAt
+    })
+    .expect(200, {
+      event: {
+        id: 29,
+        name: 'applause',
+        uid,
+        document: {first: true}
+      }
+    }, done)
+  })
+})
+
 describe('GET /events/:name', () => {
   beforeEach(done => {
     models.Event.sync({force: true}) // drops table and re-creates it
