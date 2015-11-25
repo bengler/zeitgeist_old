@@ -13,4 +13,3 @@ export default defaults({
   showDebug: process.env.DEBUG
 }, DEFAULTS)
 /* eslint-enable no-process-env */
-

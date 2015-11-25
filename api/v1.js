@@ -1,4 +1,6 @@
 import express from 'express'
+import models from './../models'
+
 /*
 import cookieParser from 'cookie-parser'
 */
@@ -12,10 +14,18 @@ router.use(cookieParser())
 */
 
 router.post('/events/:uid', (req, res, next) => {
-  res
-  .header('Location', `${req.originalUrl}/todo`)
-  .status(201)
-  .json('Created')
+  const uid = req.params.uid
+  models.Event.create({
+    uid,
+    name: req.body.name,
+    document: req.body.document
+  })
+  .then(event => {
+    res
+    .header('Location', `${req.originalUrl}/${event.id}`)
+    .status(201)
+    .json('Created')
+  })
 })
 
 export default router
