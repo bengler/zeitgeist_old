@@ -1,3 +1,4 @@
+/* eslint-disable no-process-env */
 import defaults from 'defaults'
 
 const env = process.env.NODE_ENV || 'development'
@@ -11,4 +12,5 @@ export default defaults({
   port: process.env.PORT,
   showDebug: process.env.DEBUG
 }, DEFAULTS)
+/* eslint-enable no-process-env */
 
