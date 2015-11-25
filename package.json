@@ -13,6 +13,7 @@
     "lint"
   ],
   "dependencies": {
+    "@bengler/pebbles-uid": "^1.0.6",
     "babel": "^6.1.18",
     "body-parser": "~1.14.1",
     "cookie-parser": "~1.4.0",

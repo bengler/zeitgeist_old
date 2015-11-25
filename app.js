@@ -6,7 +6,7 @@ const app = express()
 
 app.use(logger('dev'))
 
-app.use('/api/v1', apiV1)
+app.use('/api/zeitgeist/v1', apiV1)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

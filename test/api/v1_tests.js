@@ -2,6 +2,7 @@ import request from 'supertest'
 import express from 'express'
 import apiV1 from '../../api/v1'
 import models from '../../models'
+import sequelize from 'sequelize'
 import {assert} from 'chai'
 
 import objectAssign from 'object-assign'
@@ -15,24 +16,36 @@ const uid = 'post.entry:bengler.www$123'
 const event = {
   name: 'upvote',
   document: {
+    uid,
     timeOffset: 120
   }
 }
 
-describe('POST /events/:uid', () => {
+describe('POST /events/:name/:uid', () => {
+  beforeEach(done => {
+    models.Event.sync({force: true})
+    .then(() => done()).catch(error => done(error))
+  })
+
+  it('does not accept wildcard uids', done => {
+    request(app)
+    .post(`/events/upvote/post.entry:*`)
+    .expect(400)
+    .expect({
+      status: 400,
+      message: 'uid cannot contain wildcard'
+    }, done)
+  })
+
   it('returns 201 Created', done => {
     request(app)
-    .post(`/events/${uid}`)
-    .send(event)
+    .post(`/events/upvote/${uid}`)
     .expect(201, done)
   })
 
   it('has relative path for created resource in Location header', done => {
-    const url = `/events/${uid}`
-
     request(app)
-    .post(url)
-    .send(event)
+    .post(`/events/upvote/${uid}`)
     .expect(201)
     .end((err, response) => {
       if (err) {
@@ -41,7 +54,7 @@ describe('POST /events/:uid', () => {
 
       models.Event.findOne({order: 'id DESC'})
       .then(newEvent => {
-        assert.propertyVal(response.headers, 'location', `${url}/${newEvent.id}`)
+        assert.propertyVal(response.headers, 'location', `/${newEvent.id}`)
       })
       .then(() => {
         done()
@@ -54,13 +67,9 @@ describe('POST /events/:uid', () => {
 
   it('creates a new event', done => {
     request(app)
-    .post(`/events/${uid}`)
+    .post('/events/new_event/myUid')
     .send(objectAssign({}, event, {
-      name: 'A new thing',
-      not: 'included',
-      document: {
-        meta: 'data'
-      }
+      meta: 'data'
     }))
     .end((error, response) => {
       if (error) {
@@ -70,8 +79,8 @@ describe('POST /events/:uid', () => {
       models.Event.findOne({order: 'id DESC'})
       .then(newEvent => {
         assert.ok(newEvent)
-        assert.propertyVal(newEvent, 'uid', uid)
-        assert.propertyVal(newEvent, 'name', 'A new thing')
+        assert.propertyVal(newEvent, 'uid', 'myUid')
+        assert.propertyVal(newEvent, 'name', 'new_event')
         assert.propertyVal(newEvent.document, 'meta', 'data')
         assert.notProperty(newEvent, 'not')
       })
@@ -87,50 +96,42 @@ describe('POST /events/:uid', () => {
   it('requires an identity')
 })
 
-describe('GET /events/:uid/:name', () => {
+describe('GET /events/:name', () => {
   beforeEach(done => {
     models.Event.sync({force: true}) // drops table and re-creates it
     .then(() => {
-      done(null)
+      return models.Event.bulkCreate([
+        {uid, name: 'applause', document: {first: true}},
+        {uid, name: 'applause', document: {first: false}},
+        {uid, name: 'stream', document: {meta: 'data'}},
+        {uid, name: 'applause', document: {last: true}},
+      ])
     })
-    .catch(error => {
-      done(error)
-    })
+    .then(() => done()).catch(error => done(error))
   })
 
-  it('returns rows and count as JSON', done => {
+  it('does pagination and shows total hits', done => {
     request(app)
-    .get(`/events/something/name`)
-    .expect('Content-Type', /json/)
-    .expect({
-      rows: [],
-      count: 0
-    }, done)
-  })
+    .get(`/events/applause`)
+    .query({
+      limit: 1,
+      offset: 2
+    })
+    .end((error, response) => {
+      if (error) {
+        return done(error)
+      }
 
-  it('returns events of :name for :uid', done => {
-    models.Event.bulkCreate([
-      {uid: uid, name: 'applause'},
-      {uid: uid, name: 'applause'},
-      {uid: uid, name: 'some other event'},
-      {uid: 'other uid', name: 'applause'},
-    ])
-    .then(result => {
-      request(app)
-      .get(`/events/${uid}/applause`)
-      .expect(200)
-      .end((error, response) => {
-        if (error) {
-          return done(error)
-        }
-        const events = response.body.rows
-        assert.equal(events.length, 2, 'Returned wrong number of events')
-        events.forEach(returnedEvent => {
-          assert.propertyVal(returnedEvent, 'name', 'applause')
-          assert.propertyVal(returnedEvent, 'uid', uid)
-        })
-        done()
-      })
+      const result = response.body
+      assert.equal(result.rows.length, 1)
+      assert.property(result, 'pagination')
+
+      const expectedHits = 3
+      assert.propertyVal(result, 'total', expectedHits, 'Should show 3 total hits')
+
+      const row = result.rows[0]
+      assert.propertyVal(row.document, 'last', true)
+      done()
     })
   })
 })
