@@ -6,7 +6,7 @@ module.exports = function(sequelize, DataTypes) {
     name: DataTypes.STRING,
     createdAt: DataTypes.TIME,
     updatedAt: DataTypes.TIME,
-    document: DataTypes.HSTORE
+    document: DataTypes.JSONB
   }, {
     classMethods: {
       associate: function(models) {

@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       document: {
-        type: Sequelize.HSTORE
+        type: Sequelize.JSONB
       },
       createdAt: {
         allowNull: false,

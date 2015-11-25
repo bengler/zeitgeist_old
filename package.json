@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "watch-test": "npm run test -- --watch",
-    "test": "mocha --compilers js:babel-core/register test/**/*.js",
+    "test": "NODE_ENV=test mocha --compilers js:babel-core/register test/**/*.js",
     "start": "remon --require ./.init.js bin/www",
     "lint": "eslint --ext .js .",
     "pre-commit-check": "(npm run lint -- --quiet || (echo 'Warning: project has lint errors. Please fix and re-commit with `git commit --amend`' && echo ''))"
@@ -23,8 +23,8 @@
     "object-assign": "^4.0.1",
     "pg": "^4.4.3",
     "pg-hstore": "^2.3.2",
-    "sequelize": "^3.12.2",
-    "sequelize-cli": "^2.1.0"
+    "sequelize": "^3.14.1",
+    "sequelize-cli": "^2.2.1"
   },
   "devDependencies": {
     "babel-core": "^6.2.1",

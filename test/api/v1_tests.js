@@ -33,6 +33,7 @@ describe('POST /events/:uid', () => {
     request(app)
     .post(url)
     .send(event)
+    .expect(201)
     .end((err, response) => {
       if (err) {
         return done(err)
