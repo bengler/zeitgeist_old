@@ -2,8 +2,7 @@ import express from 'express'
 const router = express.Router()
 
 router.get('/events', (req, res, next) => {
-  res.json('rune 2')
+  res.json('rune')
 })
 
 export default router
-
