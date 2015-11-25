@@ -1,3 +1,4 @@
+import winston from 'winston'
 /* eslint-disable */
 'use strict';
 
@@ -10,6 +11,18 @@ var basename  = path.basename(module.filename);
 var env       = defaults.env;
 var config    = require(__dirname + '/../config/database.json')[env];
 var db        = {};
+
+if (env === 'development' || env === 'test') {
+  const logFile = `log/database-${env}.log`
+  const logger = new (winston.Logger)({
+    transports: [
+      new (winston.transports.File)({filename: logFile})
+    ]
+  })
+  config.logging = logger.info
+} else {
+  config.logging = console.log
+}
 
 if (config.use_env_variable) {
   var sequelize = new Sequelize(process.env[config.use_env_variable]);
