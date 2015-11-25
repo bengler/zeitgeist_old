@@ -4,16 +4,14 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('zeitgeist:server');
-var http = require('http');
+import app from '../app'
+import config from '../config/'
+import makeDebug from 'debug'
+const debug = makeDebug('zeitgeist:server')
+import http from 'http'
 
-/**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+var port = normalizePort(config.port)
+app.set('port', port)
 
 /**
  * Create HTTP server.

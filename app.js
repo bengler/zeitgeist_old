@@ -1,16 +1,10 @@
 import express from 'express'
 import logger from 'morgan'
-import cookieParser from 'cookie-parser'
-import bodyParser from 'body-parser'
-
 import apiV1 from './api/v1'
 
 const app = express()
 
 app.use(logger('dev'))
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: false}))
-app.use(cookieParser())
 
 app.use('/api/v1', apiV1)
 
