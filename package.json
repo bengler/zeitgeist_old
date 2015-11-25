@@ -20,6 +20,7 @@
     "defaults": "^1.0.3",
     "express": "~4.13.1",
     "morgan": "~1.6.1",
+    "object-assign": "^4.0.1",
     "pg": "^4.4.3",
     "pg-hstore": "^2.3.2",
     "sequelize": "^3.12.2",

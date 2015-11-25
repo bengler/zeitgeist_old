@@ -4,6 +4,8 @@ import apiV1 from '../../api/v1'
 import models from '../../models'
 import {assert} from 'chai'
 
+import objectAssign from 'object-assign'
+
 /* eslint-disable max-nested-callbacks */
 
 const app = express()
@@ -52,7 +54,13 @@ describe('POST /events/:uid', () => {
   it('creates a new event', done => {
     request(app)
     .post(`/events/${uid}`)
-    .send(event)
+    .send(objectAssign({}, event, {
+      name: 'A new thing',
+      not: 'included',
+      document: {
+        meta: 'data'
+      }
+    }))
     .end((error, response) => {
       if (error) {
         return done(error)
@@ -62,8 +70,9 @@ describe('POST /events/:uid', () => {
       .then(newEvent => {
         assert.ok(newEvent)
         assert.propertyVal(newEvent, 'uid', uid)
-        assert.propertyVal(newEvent, 'name', event.name)
-        assert.propertyVal(newEvent.document, 'timeOffset', '120')
+        assert.propertyVal(newEvent, 'name', 'A new thing')
+        assert.propertyVal(newEvent.document, 'meta', 'data')
+        assert.notProperty(newEvent, 'not')
       })
       .then(() => {
         done()
@@ -76,3 +85,5 @@ describe('POST /events/:uid', () => {
 
   it('requires an identity')
 })
+
+/* eslint-enable max-nested-callbacks */
