@@ -28,4 +28,18 @@ router.post('/events/:uid', (req, res, next) => {
   })
 })
 
+router.get('/events/:uid/:name', (req, res, next) => {
+  models.Event.findAndCountAll({
+    where: {
+      uid: req.params.uid,
+      name: req.params.name
+    }
+  })
+  .then(queryResult => {
+    res
+    .status(200)
+    .json(queryResult)
+  })
+})
+
 export default router

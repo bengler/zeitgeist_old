@@ -86,4 +86,52 @@ describe('POST /events/:uid', () => {
   it('requires an identity')
 })
 
+describe('GET /events/:uid/:name', () => {
+  beforeEach(done => {
+    models.Event.sync({force: true}) // drops table and re-creates it
+    .then(() => {
+      done(null)
+    })
+    .catch(error => {
+      done(error)
+    })
+  })
+
+  it('returns rows and count as JSON', done => {
+    request(app)
+    .get(`/events/something/name`)
+    .expect('Content-Type', /json/)
+    .expect({
+      rows: [],
+      count: 0
+    }, done)
+  })
+
+  it('returns events of :name for :uid', done => {
+    models.Event.bulkCreate([
+      {uid: uid, name: 'applause'},
+      {uid: uid, name: 'applause'},
+      {uid: uid, name: 'some other event'},
+      {uid: 'other uid', name: 'applause'},
+    ])
+    .then(result => {
+      request(app)
+      .get(`/events/${uid}/applause`)
+      .expect(200)
+      .end((error, response) => {
+        if (error) {
+          return done(error)
+        }
+        const events = response.body.rows
+        assert.equal(events.length, 2, 'Returned wrong number of events')
+        events.forEach(returnedEvent => {
+          assert.propertyVal(returnedEvent, 'name', 'applause')
+          assert.propertyVal(returnedEvent, 'uid', uid)
+        })
+        done()
+      })
+    })
+  })
+})
+
 /* eslint-enable max-nested-callbacks */
