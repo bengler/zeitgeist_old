@@ -11,6 +11,7 @@
     "bengler"
   ],
   "rules": {
+    "no-magic-numbers": [1, {"ignore": [0, 1, 2, 200, 400, 500]}],
     "id-length": [2, {"exceptions": ["Q"]}],
     "import/no-unresolved": 2,
     "import/named": 1,
