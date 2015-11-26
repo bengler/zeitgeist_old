@@ -3,18 +3,21 @@ import models from './../models'
 import pebblesCors from '@bengler/pebbles-cors'
 import bodyParser from 'body-parser'
 import jsonError from '../lib/jsonError'
-//import cookieParser from 'cookie-parser'
-
+import cookieParser from 'cookie-parser'
+import checkIdentity from '../lib/checkIdentity'
 
 /*
 options.checkCors is a custom function to determine trusted domains
 */
 function V1(options = {}) {
   const router = express.Router()
-  router.use(bodyParser.json())
 
   const corsMiddleware = pebblesCors(options.checkCors)
   router.use(corsMiddleware)
+
+  router.use(cookieParser())
+  router.use(bodyParser.json())
+  router.use(checkIdentity(options.checkIdentity))
 
   /*
   router.use(bodyParser.urlencoded({extended: false}))
@@ -42,6 +45,7 @@ function V1(options = {}) {
   })
 
   router.get('/events/:name/:uid/:id', (req, res, next) => {
+    //const identity = res.locals.checkpointIdentity
     models.Event.findOne({
       where: {
         name: req.params.name,

@@ -5,11 +5,22 @@ import models from '../../../models'
 import {assert} from 'chai'
 
 import objectAssign from 'object-assign'
+import checkpointIdentity from '../../fixtures/checkpointIdentity.json'
 
 /* eslint-disable max-nested-callbacks */
 
+const validSession = 'abcdef0123456789'
+const apiOptions = {
+  checkIdentity: sessionId => {
+    return new Promise((resolve, reject) => {
+      const identity = (sessionId === validSession) ? checkpointIdentity : null
+      resolve(identity)
+    })
+  }
+}
+
 const app = express()
-app.use('/', apiV1())
+app.use('/', apiV1(apiOptions))
 
 const uid = 'post.entry:bengler.www$123'
 const event = {
@@ -20,15 +31,40 @@ const event = {
   }
 }
 
+// Common identify tests
+// Pass the HTTP verb, the path to test and optionally what
+// HTTP status code is concidered a success at this path
+function itRequiresIdentity(method, path, okStatus = 200) {
+  it('returns 401 without checkpoint session', done => {
+    request(app)[method](path)
+    .expect(401, done)
+  })
+
+  it('returns 401 with invalid checkpoint session', done => {
+    request(app)[method](path)
+    .set('Cookie', [`checkpoint:session=invalid`])
+    .expect(401, done)
+  })
+
+  it(`returns ${okStatus} with valid checkpoint session`, done => {
+    request(app)[method](path)
+    .set('Cookie', [`checkpoint:session=${validSession}`])
+    .expect(okStatus, done)
+  })
+}
+
 describe('POST /events/:name/:uid', () => {
   beforeEach(done => {
     models.Event.sync({force: true})
     .then(() => done()).catch(error => done(error))
   })
 
+  itRequiresIdentity('post', `/events/upvote/${uid}`, 201)
+
   it('does not accept wildcard uids', done => {
     request(app)
     .post(`/events/upvote/post.entry:*`)
+    .set('Cookie', [`checkpoint:session=${validSession}`])
     .expect(400)
     .expect({
       error: {},
@@ -37,15 +73,10 @@ describe('POST /events/:name/:uid', () => {
     }, done)
   })
 
-  it('returns 201 Created', done => {
-    request(app)
-    .post(`/events/upvote/${uid}`)
-    .expect(201, done)
-  })
-
   it('has relative path for created resource in Location header', done => {
     request(app)
     .post(`/events/upvote/${uid}`)
+    .set('Cookie', [`checkpoint:session=${validSession}`])
     .expect(201)
     .end((err, response) => {
       if (err) {
@@ -68,6 +99,7 @@ describe('POST /events/:name/:uid', () => {
   it('creates a new event', done => {
     request(app)
     .post('/events/new_event/myUid')
+    .set('Cookie', [`checkpoint:session=${validSession}`])
     .send(objectAssign({}, event, {
       meta: 'data'
     }))
@@ -83,8 +115,6 @@ describe('POST /events/:name/:uid', () => {
         assert.propertyVal(newEvent, 'name', 'new_event')
         assert.propertyVal(newEvent.document, 'meta', 'data')
         assert.notProperty(newEvent, 'not')
-      })
-      .then(() => {
         done()
       })
       .catch(err => {
@@ -107,9 +137,12 @@ describe('GET /events/:name/:uid/:id', () => {
     .then(() => done()).catch(error => done(error))
   })
 
+  itRequiresIdentity('get', `/events/applause/${uid}/29`, 200)
+
   it('returns the event requested', done => {
     request(app)
     .get(`/events/applause/${uid}/29`)
+    .set('Cookie', [`checkpoint:session=${validSession}`])
     .expect(res => {
       // Remove these since they change
       delete res.body.event.createdAt
@@ -140,9 +173,12 @@ describe('GET /events/:name', () => {
     .then(() => done()).catch(error => done(error))
   })
 
+  itRequiresIdentity('get', `/events/applause`, 200)
+
   it('does pagination and shows total hits', done => {
     request(app)
     .get(`/events/applause`)
+    .set('Cookie', [`checkpoint:session=${validSession}`])
     .query({
       limit: 1,
       offset: 2
