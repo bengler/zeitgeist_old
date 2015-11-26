@@ -1,5 +1,5 @@
 # Zeitgeist
-A [pebble](http://pebblestack.org) for recording arbitrary events
+A [pebble](http://pebblestack.org) for attaching arbitrary events to uids
 
 ## Developing
 
