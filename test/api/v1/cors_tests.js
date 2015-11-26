@@ -16,16 +16,16 @@ const apiOptions = {
 app.use('/', apiV1(apiOptions))
 
 describe('CORS headers', () => {
-  it('accepts origin in list of trusted domains', done => {
+  it('accepts localhost', done => {
     request(app)
     .get('/')
-    .set('Origin', trustedOrigin)
-    .expect('Access-Control-Allow-Origin', trustedOrigin)
+    .set('Origin', 'http://localhost')
+    .expect('Access-Control-Allow-Origin', 'http://localhost')
     .expect('Access-Control-Expose-Headers', '')
     .expect('Access-Control-Allow-Credentials', 'true', done)
   })
 
-  it('preflights requests', done => {
+  it('accepts origin in list of trusted domains', done => {
     request(app)
     .get('/')
     .set('Origin', trustedOrigin)
