@@ -6,6 +6,12 @@ import makeCheckpoint from './lib/createCheckpoint'
 
 const app = express()
 
+// remove x-powered-by
+app.use((req, res, next) => {
+  res.removeHeader('x-powered-by')
+  next()
+})
+
 app.use(logger('dev'))
 
 const checkpoint = makeCheckpoint('http://thestream.staging.o5.no')
