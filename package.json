@@ -13,6 +13,7 @@
     "lint"
   ],
   "dependencies": {
+    "@bengler/pebbles-client": "^1.2.3",
     "@bengler/pebbles-cors": "0.0.4",
     "@bengler/pebbles-uid": "^1.0.6",
     "babel": "^6.1.18",
