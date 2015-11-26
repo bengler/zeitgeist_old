@@ -122,8 +122,6 @@ describe('POST /events/:name/:uid', () => {
       })
     })
   })
-
-  it('requires an identity')
 })
 
 describe('GET /events/:name/:uid/:id', () => {
