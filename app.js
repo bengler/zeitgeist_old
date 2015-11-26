@@ -1,12 +1,12 @@
 import express from 'express'
 import logger from 'morgan'
-import apiV1 from './api/v1'
+import V1 from './api/v1'
 
 const app = express()
 
 app.use(logger('dev'))
 
-app.use('/api/zeitgeist/v1', apiV1)
+app.use('/api/zeitgeist/v1', V1())
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
