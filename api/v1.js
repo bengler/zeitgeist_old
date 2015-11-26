@@ -2,6 +2,7 @@ import express from 'express'
 import models from './../models'
 import pebblesCors from '@bengler/pebbles-cors'
 import bodyParser from 'body-parser'
+import jsonError from '../lib/jsonError'
 //import cookieParser from 'cookie-parser'
 
 
@@ -20,14 +21,10 @@ function V1(options = {}) {
   router.use(cookieParser())
   */
 
-  function jsonError(status, message) {
-    this.status(status)
-    .json({status, message})
-  }
-
   router.post('/events/:name/:uid', (req, res, next) => {
     if (req.params.uid.indexOf('*') !== -1) {
-      return jsonError.call(res, 400, 'uid cannot contain wildcard')
+      const error = new Error('uid cannot contain wildcard')
+      return jsonError.call(res, 400, error)
     }
 
     const attr = {

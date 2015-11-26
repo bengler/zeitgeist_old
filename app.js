@@ -1,6 +1,7 @@
 import express from 'express'
 import logger from 'morgan'
 import V1 from './api/v1'
+import jsonError from './lib/jsonError'
 
 const app = express()
 
@@ -16,27 +17,8 @@ app.use((req, res, next) => {
 })
 
 // error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use((err, req, res, next) => {
-    res.status(err.status || 500)
-    res.json('error', {
-      message: err.message,
-      error: err
-    })
-  })
-}
-
-// production error handler
-// no stacktraces leaked to user
 app.use((err, req, res, next) => {
-  res.status(err.status || 500)
-  res.json('error', {
-    message: err.message,
-    error: {}
-  })
+  return jsonError.call(res, err.status || 500, err) // eslint-disable-line prefer-reflect
 })
 
 export default app

@@ -31,6 +31,7 @@ describe('POST /events/:name/:uid', () => {
     .post(`/events/upvote/post.entry:*`)
     .expect(400)
     .expect({
+      error: {},
       status: 400,
       message: 'uid cannot contain wildcard'
     }, done)
