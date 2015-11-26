@@ -1,8 +1,7 @@
 import request from 'supertest'
 import express from 'express'
-import apiV1 from '../../api/v1'
-import models from '../../models'
-import sequelize from 'sequelize'
+import apiV1 from '../../../api/v1'
+import models from '../../../models'
 import {assert} from 'chai'
 
 import objectAssign from 'object-assign'
