@@ -13,7 +13,7 @@ const validSession = 'abcdef0123456789'
 const apiOptions = {
   checkIdentity: sessionId => {
     return new Promise((resolve, reject) => {
-      const identity = (sessionId === validSession) ? checkpointIdentity : null
+      const identity = (sessionId === validSession) ? checkpointIdentity.identity : null
       resolve(identity)
     })
   }
@@ -122,6 +122,30 @@ describe('POST /events/:name/:uid', () => {
       })
     })
   })
+
+  it('attaches the identity to the event', done => {
+    request(app)
+    .post('/events/upvote/post.entry:monster.thestream$123')
+    .set('Cookie', [`checkpoint:session=${validSession}`])
+    .send(event)
+    .end((error, response) => {
+      if (error) {
+        return done(error)
+      }
+
+      models.Event.findOne({order: 'id DESC'})
+      .then(newEvent => {
+        assert.ok(newEvent)
+        assert.property(newEvent, 'identity')
+        const identity = newEvent.identity
+        assert.deepEqual(checkpointIdentity.identity, identity)
+        done()
+      })
+      .catch(err => {
+        done(err)
+      })
+    })
+  })
 })
 
 describe('GET /events/:name/:uid/:id', () => {
@@ -129,7 +153,16 @@ describe('GET /events/:name/:uid/:id', () => {
     models.Event.sync({force: true}) // drops table and re-creates it
     .then(() => {
       return models.Event.bulkCreate([
-        {id: 29, createdAt: 0, updatedAt: 0, uid, name: 'applause', document: {first: true}},
+        {
+          id: 29,
+          createdAt: 0,
+          updatedAt: 0,
+          uid,
+          name: 'applause',
+          identity: {name: 'Rune'},
+          document: {
+            first: true
+          }},
       ])
     })
     .then(() => done()).catch(error => done(error))
@@ -150,6 +183,9 @@ describe('GET /events/:name/:uid/:id', () => {
       event: {
         id: 29,
         name: 'applause',
+        identity: {
+          name: 'Rune'
+        },
         uid,
         document: {first: true}
       }

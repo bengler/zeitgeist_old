@@ -33,6 +33,7 @@ function V1(options = {}) {
     const attr = {
       uid: req.params.uid,
       name: req.params.name,
+      identity: res.locals.checkpointIdentity,
       document: req.body || {}
     }
     models.Event.create(attr)
