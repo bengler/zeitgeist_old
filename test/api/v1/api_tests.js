@@ -11,7 +11,7 @@ import checkpointIdentity from '../../fixtures/checkpointIdentity.json'
 
 const validSession = 'abcdef0123456789'
 const apiOptions = {
-  checkIdentity: sessionId => {
+  checkIdentity: (baseUrl, sessionId) => {
     return new Promise((resolve, reject) => {
       const identity = (sessionId === validSession) ? checkpointIdentity.identity : null
       resolve(identity)

@@ -7,6 +7,10 @@ const DEFAULTS = {
   port: 3000
 }
 
+if (env === 'development') {
+  DEFAULTS.pebbleHost = 'http://thestream.staging.o5.no'
+}
+
 export default defaults({
   env,
   port: process.env.PORT,
