@@ -5,8 +5,8 @@ module.exports = function(sequelize, DataTypes) {
     uid: DataTypes.STRING,
     name: DataTypes.STRING,
     identity: DataTypes.JSONB,
-    createdAt: DataTypes.TIME,
-    updatedAt: DataTypes.TIME,
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
     document: DataTypes.JSONB
   }, {
     classMethods: {
