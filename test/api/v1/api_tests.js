@@ -9,7 +9,7 @@ import objectAssign from 'object-assign'
 /* eslint-disable max-nested-callbacks */
 
 const app = express()
-app.use('/', apiV1)
+app.use('/', apiV1())
 
 const uid = 'post.entry:bengler.www$123'
 const event = {
