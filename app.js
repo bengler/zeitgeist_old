@@ -22,14 +22,14 @@ app.use('/api/zeitgeist/v1', V1({
       const checkpoint = makeCheckpoint(base)
       checkpoint.get('/identities/me', {session: sessionId})
       .then(result => {
-        if (result) {
+        if (result.body.identity) {
           resolve(result.body.identity)
         } else {
           reject()
         }
       })
       .catch(error => {
-        reject()
+        reject(error)
       })
     })
   }

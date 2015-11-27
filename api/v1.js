@@ -16,7 +16,8 @@ function V1(options = {}) {
   router.use(corsMiddleware)
 
   router.use(cookieParser())
-  router.use(checkIdentity(options.checkIdentity))
+  const identityCheck = checkIdentity(options.checkIdentity)
+  router.use(identityCheck)
   router.use(bodyParser.json())
 
   /*
