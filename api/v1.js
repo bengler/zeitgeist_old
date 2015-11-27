@@ -19,10 +19,7 @@ function V1(options = {}) {
 
   router.use(cookieParser())
   router.use(bodyParser.json())
-  // Only do identity checks if not local
-  if (config.env !== 'development') {
-    router.use(checkIdentity(options.checkIdentity))
-  }
+  router.use(checkIdentity(options.checkIdentity))
 
   /*
   router.use(bodyParser.urlencoded({extended: false}))
