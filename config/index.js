@@ -4,7 +4,7 @@ import defaults from 'defaults'
 const env = process.env.NODE_ENV || 'development'
 
 const DEFAULTS = {
-  port: 3000
+  port: 3002
 }
 
 if (env === 'development') {
