@@ -1,0 +1,12 @@
+---
+test:
+  adapter: postgresql
+  pool: 5
+  host: localhost
+  port: 5432
+  database: zeitgeist_test
+  username: zeitgeist
+  password: password
+  encoding: unicode
+  multidb:
+    fallback: true

@@ -28,7 +28,8 @@
     "pg-hstore": "^2.3.2",
     "sequelize": "^3.14.1",
     "sequelize-cli": "^2.2.1",
-    "winston": "^2.1.1"
+    "winston": "^2.1.1",
+    "yamljs": "^0.2.4"
   },
   "devDependencies": {
     "babel-core": "^6.2.1",

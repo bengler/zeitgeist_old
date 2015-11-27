@@ -1,4 +1,5 @@
 import winston from 'winston'
+import databaseConfig from '../lib/databaseConfig'
 /* eslint-disable */
 'use strict';
 
@@ -9,7 +10,7 @@ var path      = require('path');
 var Sequelize = require('sequelize');
 var basename  = path.basename(module.filename);
 var env       = defaults.env;
-var config    = require(__dirname + '/../config/database.json')[env];
+var config    = databaseConfig(__dirname + '/../config/database.yml')[env];
 var db        = {};
 
 if (env === 'development' || env === 'test') {
