@@ -3,7 +3,6 @@ import logger from 'morgan'
 import V1 from './api/v1'
 import jsonError from './lib/jsonError'
 import makeCheckpoint from './lib/createCheckpoint'
-import config from './config'
 
 const app = express()
 
@@ -19,14 +18,18 @@ app.use('/api/zeitgeist/v1', V1({
   // This checks checkpoint session remotely
   checkIdentity: (baseUrl, sessionId) => {
     return new Promise((resolve, reject) => {
-      const base = config.pebbleHost || baseUrl
-      makeCheckpoint(base).get('/identities/me', {session: sessionId})
+      const base = baseUrl
+      const checkpoint = makeCheckpoint(base)
+      checkpoint.get('/identities/me', {session: sessionId})
       .then(result => {
         if (result) {
           resolve(result.body.identity)
         } else {
           reject()
         }
+      })
+      .catch(error => {
+        reject()
       })
     })
   }
