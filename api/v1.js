@@ -13,15 +13,14 @@ options.checkCors is a custom function to determine trusted domains
 function V1(options = {}) {
   const router = express.Router()
 
-  
+
   const corsMiddleware = pebblesCors(options.checkCors)
   router.use(corsMiddleware)
-  
 
   router.use(cookieParser())
   router.use(bodyParser.json())
   // Only do identity checks if not local
-  if (['development', 'test'].indexOf(config.env) == -1) {
+  if (config.env !== 'development') {
     router.use(checkIdentity(options.checkIdentity))
   }
 
