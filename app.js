@@ -22,7 +22,11 @@ app.use('/api/zeitgeist/v1', V1({
       const base = config.pebbleHost || baseUrl
       makeCheckpoint(base).get('/identities/me', {session: sessionId})
       .then(result => {
-        resolve(result.body.identity)
+        if (result) {
+          resolve(result.body.identity)
+        } else {
+          reject()
+        }
       })
     })
   }
