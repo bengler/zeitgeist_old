@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "watch-test": "npm run test -- --watch",
-    "test": "NODE_ENV=test mocha --compilers js:babel-core/register test/**/*.js",
+    "test": "NODE_ENV=test mocha --full-trace --compilers js:babel-core/register test/**/*.js",
     "start": "remon --require ./.init.js bin/www",
     "lint": "eslint --ext .js .",
     "pre-commit-check": "(npm run lint -- --quiet || (echo 'Warning: project has lint errors. Please fix and re-commit with `git commit --amend`' && echo ''))"
