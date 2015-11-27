@@ -37,7 +37,7 @@ const event = {
 function itRequiresIdentity(method, path, okStatus = 200) {
   it('returns 401 without checkpoint session', done => {
     request(app)[method](path)
-    .expect(401, done)
+    .expect(401, 'No current identity.', done)
   })
 
   it('returns 401 with invalid checkpoint session', done => {
