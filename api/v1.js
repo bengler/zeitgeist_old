@@ -8,22 +8,18 @@ import checkIdentity from '../lib/checkIdentity'
 
 /*
 options.checkCors is a custom function to determine trusted domains
+options.checkIdentity is a custom function to verify sessions
 */
 function V1(options = {}) {
   const router = express.Router()
+  router.use(cookieParser())
+  router.use(bodyParser.json())
 
   const corsMiddleware = pebblesCors(options.checkCors)
   router.use(corsMiddleware)
 
-  router.use(cookieParser())
   const identityCheck = checkIdentity(options.checkIdentity)
   router.use(identityCheck)
-  router.use(bodyParser.json())
-
-  /*
-  router.use(bodyParser.urlencoded({extended: false}))
-  router.use(cookieParser())
-  */
 
   router.post('/events/:name/:uid', (req, res, next) => {
     if (req.params.uid.indexOf('*') !== -1) {

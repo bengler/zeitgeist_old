@@ -2,8 +2,6 @@ import express from 'express'
 import logger from 'morgan'
 import V1 from './api/v1'
 import jsonError from './lib/jsonError'
-import makeCheckpoint from './lib/createCheckpoint'
-import config from './config'
 
 const app = express()
 
@@ -15,26 +13,7 @@ app.use((req, res, next) => {
 
 app.use(logger('dev'))
 
-app.use('/api/zeitgeist/v1', V1({
-  // This checks checkpoint session remotely
-  checkIdentity: (baseUrl, sessionId) => {
-    return new Promise((resolve, reject) => {
-      const base = config.pebbleHost || baseUrl
-      const checkpoint = makeCheckpoint(base)
-      checkpoint.get('/identities/me', {session: sessionId})
-      .then(result => {
-        if (result.body.identity) {
-          resolve(result.body.identity)
-        } else {
-          reject()
-        }
-      })
-      .catch(error => {
-        reject(error)
-      })
-    })
-  }
-}))
+app.use('/api/zeitgeist/v1', V1())
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
