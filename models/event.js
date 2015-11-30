@@ -9,6 +9,14 @@ module.exports = function(sequelize, DataTypes) {
     updatedAt: DataTypes.DATE,
     document: DataTypes.JSONB
   }, {
+    scopes: {
+      countByUid: function(name) {
+        return {
+          attributes: ['uid', [sequelize.fn('count', sequelize.col('uid')), 'count']],
+          group: ['uid']
+        }
+      }
+    },
     classMethods: {
       associate: function(models) {
         // associations can be defined here

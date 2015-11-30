@@ -17,31 +17,9 @@ function V1(options = {}) {
   const corsMiddleware = pebblesCors(options.checkCors)
   router.use(corsMiddleware)
 
-  const identityCheck = checkIdentity(options.checkIdentity)
-  router.use(identityCheck)
-
-  router.post('/events/:name/:uid', (req, res, next) => {
-    if (req.params.uid.indexOf('*') !== -1) {
-      const error = new Error('uid cannot contain wildcard')
-      error.status = 400
-      return next(error)
-    }
-
-    const attr = {
-      uid: req.params.uid,
-      name: req.params.name,
-      identity: res.locals.checkpointIdentity,
-      document: req.body || {}
-    }
-    models.Event.create(attr)
-    .then(event => {
-      res
-      .header('Location', `/${event.id}`)
-      .status(201)
-      .json('Created')
-    })
-  })
-
+  /******************************************************
+  PUBLIC API METHODS NOT REQUIRING CHECKPOINT IDENTITY
+  ******************************************************/
   router.get('/events/:name/:uid/:id', (req, res, next) => {
     models.Event.findOne({
       where: {
@@ -68,6 +46,7 @@ function V1(options = {}) {
   const defaultLimit = 100
   const defaultOffset = 0
   router.get('/events/:name/:uid*?', (req, res, next) => {
+    let scope = models.Event
     const where = {name: req.params.name}
     if (req.params.uid) {
       where.uid = req.params.uid
@@ -78,7 +57,15 @@ function V1(options = {}) {
     const limit = req.query.limit || defaultLimit
     const offset = req.query.offset || defaultOffset
     const order = '"createdAt" DESC'
-    models.Event.findAndCountAll({where, limit, offset, order})
+
+    const params = {where, limit, offset, order}
+
+    if (req.query.count === 'true') {
+      scope = models.Event.scope('countByUid')
+      delete params.order // eslint-disable-line prefer-reflect
+    }
+
+    scope.findAndCountAll(params)
     .then(queryResult => {
       res
       .status(200)
@@ -95,6 +82,36 @@ function V1(options = {}) {
       next(error)
     })
   })
+
+  /******************************************************
+  PUBLIC API METHODS REQUIRING CHECKPOINT IDENTITY
+  ******************************************************/
+
+  const identityCheck = checkIdentity(options.checkIdentity)
+  router.use(identityCheck)
+
+  router.post('/events/:name/:uid', (req, res, next) => {
+    if (req.params.uid.indexOf('*') !== -1) {
+      const error = new Error('uid cannot contain wildcard')
+      error.status = 400
+      return next(error)
+    }
+
+    const attr = {
+      uid: req.params.uid,
+      name: req.params.name,
+      identity: res.locals.checkpointIdentity,
+      document: req.body || {}
+    }
+    models.Event.create(attr)
+    .then(event => {
+      res
+      .header('Location', `/${event.id}`)
+      .status(201)
+      .json('Created')
+    })
+  })
+
 
   return router
 }

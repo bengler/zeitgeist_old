@@ -25,7 +25,7 @@ const apiOptions = {
 const app = express()
 app.use('/', apiV1(apiOptions))
 
-const uid = 'post.entry:bengler.www$123'
+const uid = '1234567890'
 const event = {
   name: 'upvote',
   document: {
@@ -146,6 +146,81 @@ describe('POST /events/:name/:uid', () => {
   })
 })
 
+describe('GET /events/:name/ query params', () => {
+  beforeEach(done => {
+    models.Event.sync({force: true}) // drops table and re-creates it
+    .then(() => {
+      return models.Event.bulkCreate([
+        {
+          uid,
+          name: 'streamed',
+        },
+        {
+          uid,
+          name: 'streamed',
+        },
+        {
+          uid,
+          name: 'streamed',
+        },
+        {
+          uid: 123,
+          name: 'streamed',
+        },
+      ])
+    })
+    .then(() => done()).catch(error => done(error))
+  })
+
+  describe('count=true', () => {
+    it('counts the occurrences of events', done => {
+      request(app)
+      .get('/events/streamed?count=true')
+      .expect(200)
+      .end((err, result) => {
+        if (err) {
+          return done(err)
+        }
+        assert.deepEqual(result.body.rows, [
+          {uid: uid, count: '3'},
+          {uid: '123', count: '1'}
+        ])
+        done()
+      })
+    })
+
+    it('paginates with limit', done => {
+      request(app)
+      .get('/events/streamed?count=true&limit=1')
+      .expect(200)
+      .end((err, result) => {
+        if (err) {
+          return done(err)
+        }
+        assert.deepEqual(result.body.rows, [
+          {uid: uid, count: '3'},
+        ])
+        done()
+      })
+    })
+
+    it('paginates with offset', done => {
+      request(app)
+      .get('/events/streamed?count=true&limit=1&offset=1')
+      .expect(200)
+      .end((err, result) => {
+        if (err) {
+          return done(err)
+        }
+        assert.deepEqual(result.body.rows, [
+          {uid: '123', count: '1'}
+        ])
+        done()
+      })
+    })
+  })
+})
+
 describe('GET /events/:name/:uid/:id', () => {
   beforeEach(done => {
     models.Event.sync({force: true}) // drops table and re-creates it
@@ -166,12 +241,9 @@ describe('GET /events/:name/:uid/:id', () => {
     .then(() => done()).catch(error => done(error))
   })
 
-  itRequiresIdentity('get', `/events/applause/${uid}/29`, 200)
-
   it('returns the event requested', done => {
     request(app)
     .get(`/events/applause/${uid}/29`)
-    .set('Cookie', [`checkpoint.session=${validSession}`])
     .expect(res => {
       // Remove these since they change
       delete res.body.event.createdAt
@@ -205,12 +277,9 @@ describe('GET /events/:name', () => {
     .then(() => done()).catch(error => done(error))
   })
 
-  itRequiresIdentity('get', `/events/applause`, 200)
-
   it('does pagination and shows total hits', done => {
     request(app)
     .get(`/events/applause`)
-    .set('Cookie', [`checkpoint.session=${validSession}`])
     .query({
       limit: 1,
       offset: 2
