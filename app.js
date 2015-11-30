@@ -1,7 +1,6 @@
 import express from 'express'
 import logger from 'morgan'
 import V1 from './api/v1'
-import jsonError from './lib/jsonError'
 
 const app = express()
 // We are a proxied pebble, so we need to act like what ever
@@ -29,7 +28,12 @@ app.use((req, res, next) => {
 
 // error handlers
 app.use((err, req, res, next) => {
-  return jsonError.call(res, err.status || 500, err) // eslint-disable-line prefer-reflect
+  if (res.headersSent) {
+    console.log('HEADERS SENT')
+    return next(err)
+  }
+  res.status(err.status || 500)
+  res.send(err.message).end()
 })
 
 export default app

@@ -2,7 +2,6 @@ import express from 'express'
 import models from './../models'
 import pebblesCors from '@bengler/pebbles-cors'
 import bodyParser from 'body-parser'
-import jsonError from '../lib/jsonError'
 import cookieParser from 'cookie-parser'
 import checkIdentity from '../lib/checkIdentity'
 
@@ -24,7 +23,8 @@ function V1(options = {}) {
   router.post('/events/:name/:uid', (req, res, next) => {
     if (req.params.uid.indexOf('*') !== -1) {
       const error = new Error('uid cannot contain wildcard')
-      return jsonError.call(res, 400, error)
+      error.status = 400
+      return next(error)
     }
 
     const attr = {
@@ -55,11 +55,13 @@ function V1(options = {}) {
         res
         .status(200).json({event: queryResult.dataValues})
       } else {
-        return jsonError.call(res, 404, 'Not found')
+        const err = new Error('Not found')
+        err.status = 404
+        return next(err)
       }
     })
     .catch(error => {
-      return jsonError.call(res, 500, error)
+      return next(error)
     })
   })
 
@@ -90,7 +92,7 @@ function V1(options = {}) {
       })
     })
     .catch(error => {
-      return jsonError.call(res, 500, error)
+      next(error)
     })
   })
 

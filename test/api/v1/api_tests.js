@@ -68,12 +68,7 @@ describe('POST /events/:name/:uid', () => {
     request(app)
     .post(`/events/upvote/post.entry:*`)
     .set('Cookie', [`checkpoint.session=${validSession}`])
-    .expect(400)
-    .expect({
-      error: {},
-      status: 400,
-      message: 'uid cannot contain wildcard'
-    }, done)
+    .expect(400, done)
   })
 
   it('has relative path for created resource in Location header', done => {
