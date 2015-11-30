@@ -45,13 +45,13 @@ function itRequiresIdentity(method, path, okStatus = 200) {
 
   it('returns 401 with invalid checkpoint session', done => {
     request(app)[method](path)
-    .set('Cookie', [`checkpoint:session=invalid`])
+    .set('Cookie', [`checkpoint.session=invalid`])
     .expect(401, done)
   })
 
   it(`returns ${okStatus} with valid checkpoint session`, done => {
     request(app)[method](path)
-    .set('Cookie', [`checkpoint:session=${validSession}`])
+    .set('Cookie', [`checkpoint.session=${validSession}`])
     .expect(okStatus, done)
   })
 }
@@ -67,7 +67,7 @@ describe('POST /events/:name/:uid', () => {
   it('does not accept wildcard uids', done => {
     request(app)
     .post(`/events/upvote/post.entry:*`)
-    .set('Cookie', [`checkpoint:session=${validSession}`])
+    .set('Cookie', [`checkpoint.session=${validSession}`])
     .expect(400)
     .expect({
       error: {},
@@ -79,7 +79,7 @@ describe('POST /events/:name/:uid', () => {
   it('has relative path for created resource in Location header', done => {
     request(app)
     .post(`/events/upvote/${uid}`)
-    .set('Cookie', [`checkpoint:session=${validSession}`])
+    .set('Cookie', [`checkpoint.session=${validSession}`])
     .expect(201)
     .end((err, response) => {
       if (err) {
@@ -102,7 +102,7 @@ describe('POST /events/:name/:uid', () => {
   it('creates a new event', done => {
     request(app)
     .post('/events/new_event/myUid')
-    .set('Cookie', [`checkpoint:session=${validSession}`])
+    .set('Cookie', [`checkpoint.session=${validSession}`])
     .send(objectAssign({}, event, {
       meta: 'data'
     }))
@@ -129,7 +129,7 @@ describe('POST /events/:name/:uid', () => {
   it('attaches the identity to the event', done => {
     request(app)
     .post('/events/upvote/post.entry:monster.thestream$123')
-    .set('Cookie', [`checkpoint:session=${validSession}`])
+    .set('Cookie', [`checkpoint.session=${validSession}`])
     .send(event)
     .end((error, response) => {
       if (error) {
@@ -176,7 +176,7 @@ describe('GET /events/:name/:uid/:id', () => {
   it('returns the event requested', done => {
     request(app)
     .get(`/events/applause/${uid}/29`)
-    .set('Cookie', [`checkpoint:session=${validSession}`])
+    .set('Cookie', [`checkpoint.session=${validSession}`])
     .expect(res => {
       // Remove these since they change
       delete res.body.event.createdAt
@@ -215,7 +215,7 @@ describe('GET /events/:name', () => {
   it('does pagination and shows total hits', done => {
     request(app)
     .get(`/events/applause`)
-    .set('Cookie', [`checkpoint:session=${validSession}`])
+    .set('Cookie', [`checkpoint.session=${validSession}`])
     .query({
       limit: 1,
       offset: 2
