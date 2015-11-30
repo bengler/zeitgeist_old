@@ -54,6 +54,12 @@ function itRequiresIdentity(method, path, okStatus = 200) {
     .set('Cookie', [`checkpoint.session=${validSession}`])
     .expect(okStatus, done)
   })
+
+  it(`returns ${okStatus} with valid session query param`, done => {
+    const queryPath = path + '?session=' + validSession
+    request(app)[method](queryPath)
+    .expect(okStatus, done)
+  })
 }
 
 describe('POST /events/:name/:uid', () => {
