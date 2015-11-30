@@ -13,7 +13,7 @@ var env       = defaults.env;
 var config    = databaseConfig(__dirname + '/../config/database.yml')[env];
 var db        = {};
 
-if (env === 'development') {
+if (env === 'development' || env === 'test') {
   // Use a log file for development
   const logFile = `log/database-${env}.log`
   const logger = new (winston.Logger)({
