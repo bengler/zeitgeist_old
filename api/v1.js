@@ -57,13 +57,19 @@ function V1(options = {}) {
     const limit = req.query.limit || defaultLimit
     const offset = req.query.offset || defaultOffset
     const order = '"createdAt" DESC'
-
     const params = {where, limit, offset, order}
 
     if (req.query.count === 'true') {
       scope = models.Event.scope('countByUid')
       delete params.order // eslint-disable-line prefer-reflect
     }
+
+    if (req.query.from && req.query.to) {
+      const fromDate = new Date(req.query.from)
+      const toDate = new Date(req.query.to)
+      where.createdAt = {between: [fromDate, toDate]}
+    }
+
 
     scope.findAndCountAll(params)
     .then(queryResult => {

@@ -159,23 +159,44 @@ describe('GET /events/:name/ query params', () => {
       return models.Event.bulkCreate([
         {
           uid,
+          createdAt: new Date('2015-01-01 14:00:00'),
           name: 'streamed',
         },
         {
           uid,
+          createdAt: new Date('2015-01-01'),
           name: 'streamed',
         },
         {
           uid,
+          createdAt: new Date('2015-01-02 12:00:00'),
           name: 'streamed',
         },
         {
           uid: 123,
+          createdAt: new Date('2015-01-03'),
           name: 'streamed',
         },
       ])
     })
     .then(() => done()).catch(error => done(error))
+  })
+
+  describe('ranges', () => {
+    it('limits rows to time fields', done => {
+      request(app)
+      .get('/events/streamed?count=true&from=2015-01-01&to=2015-01-02')
+      .expect(200)
+      .end((err, result) => {
+        if (err) {
+          return done(err)
+        }
+        assert.deepEqual(result.body.rows, [
+          {uid: uid, count: '2'}
+        ])
+        done()
+      })
+    })
   })
 
   describe('count=true', () => {
