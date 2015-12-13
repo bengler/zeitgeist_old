@@ -4,6 +4,7 @@ import pebblesCors from '@bengler/pebbles-cors'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import checkIdentity from '../lib/checkIdentity'
+import sequelize from 'sequelize'
 
 /*
 options.checkCors is a custom function to determine trusted domains
@@ -60,7 +61,17 @@ function V1(options = {}) {
     const params = {where, limit, offset, order}
 
     if (req.query.count === 'true') {
-      scope = models.Event.scope('countByUid')
+
+      if (req.query.field) {
+        params.attributes = [
+          'uid',
+          'document',
+          [sequelize.fn('count', sequelize.json(`document.${req.query.field}`)), 'count']
+        ]
+        params.group = ['uid', 'document']
+      } else {
+        scope = models.Event.scope('countByUid')
+      }
       delete params.order // eslint-disable-line prefer-reflect
     }
 
@@ -70,23 +81,43 @@ function V1(options = {}) {
       where.createdAt = {between: [fromDate, toDate]}
     }
 
-
-    scope.findAndCountAll(params)
-    .then(queryResult => {
-      res
-      .status(200)
-      .json({
-        rows: queryResult.rows,
-        pagination: {
-          limit,
-          offset,
-        },
-        total: queryResult.count,
+    if (req.query.field) {
+      scope.findAndCountAll(params)
+      .then(queryResult => {
+        res
+        .status(200)
+        .json({
+          rows: queryResult.rows.map(row => {
+            return row
+          }),
+          pagination: {
+            limit,
+            offset,
+          },
+          total: queryResult.count,
+        })
       })
-    })
-    .catch(error => {
-      next(error)
-    })
+      .catch(error => {
+        next(error)
+      })
+    } else {
+      scope.findAndCountAll(params)
+      .then(queryResult => {
+        res
+        .status(200)
+        .json({
+          rows: queryResult.rows,
+          pagination: {
+            limit,
+            offset,
+          },
+          total: queryResult.count,
+        })
+      })
+      .catch(error => {
+        next(error)
+      })
+    }
   })
 
   /******************************************************

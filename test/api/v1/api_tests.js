@@ -200,19 +200,100 @@ describe('GET /events/:name/ query params', () => {
   })
 
   describe('count=true', () => {
-    it('counts the occurrences of events', done => {
-      request(app)
-      .get('/events/streamed?count=true')
-      .expect(200)
-      .end((err, result) => {
-        if (err) {
-          return done(err)
-        }
-        assert.deepEqual(result.body.rows, [
-          {uid: uid, count: '3'},
-          {uid: '123', count: '1'}
-        ])
-        done()
+
+    describe('unique properties', () => {
+      beforeEach(done => {
+        models.Event.bulkCreate([
+          {
+            uid: 'myId',
+            name: 'applause',
+            createdAt: new Date('2010-01-01 14:00:00'),
+            document: {
+              time: 1
+            }
+          },
+          {
+            uid: 'myId',
+            name: 'applause',
+            createdAt: new Date('2015-01-01 14:00:00'),
+            document: {
+              time: 1
+            }
+          },
+          {
+            uid: 'myId',
+            name: 'applause',
+            createdAt: new Date('2015-01-01 14:00:00'),
+            document: {
+              time: 2
+            }
+          },
+          {
+            uid: 'hm',
+            createdAt: new Date('2015-01-01 14:00:00'),
+            name: 'applause',
+          },
+        ]).then(() => done()).catch(err => done(err))
+      })
+
+      it('counts unique properties', done => {
+
+        request(app)
+        .get(`/events/applause/myId?count=true&field=time`)
+        .expect(200)
+        .end((err, result) => {
+          if (err) {
+            return done(err)
+          }
+
+          const expect = [
+            {
+              uid: 'myId',
+              count: '2',
+              document: {
+                time: 1
+              }
+            },
+            {
+              uid: 'myId',
+              count: '1',
+              document: {
+                time: 2
+              }
+            }
+          ]
+
+          assert.deepEqual(result.body.rows, expect)
+          done()
+        })
+      })
+
+      it('time-limits count of unique properties', done => {
+
+        request(app)
+        .get('/events/applause/myId?count=true&field=time&from=2014-01-01&to=2016-01-02')
+        .expect(200)
+        .end((err, result) => {
+          if (err) {
+            return done(err)
+          }
+
+          const expect = [
+            {
+              uid: 'myId',
+              count: '1',
+              document: {time: 1}
+            },
+            {
+              uid: 'myId',
+              count: '1',
+              document: {time: 2}
+            }
+          ]
+
+          assert.deepEqual(result.body.rows, expect)
+          done()
+        })
       })
     })
 
@@ -246,6 +327,23 @@ describe('GET /events/:name/ query params', () => {
       })
     })
   })
+
+  it('counts the occurrences of events', done => {
+    request(app)
+    .get('/events/streamed?count=true')
+    .expect(200)
+    .end((err, result) => {
+      if (err) {
+        return done(err)
+      }
+      assert.deepEqual(result.body.rows, [
+        {uid: uid, count: '3'},
+        {uid: '123', count: '1'}
+      ])
+      done()
+    })
+  })
+
 })
 
 describe('GET /events/:name/:uid/:id', () => {
@@ -263,71 +361,71 @@ describe('GET /events/:name/:uid/:id', () => {
           document: {
             first: true
           }},
-      ])
+        ])
+      })
+      .then(() => done()).catch(error => done(error))
     })
-    .then(() => done()).catch(error => done(error))
-  })
 
-  it('returns the event requested', done => {
-    request(app)
-    .get(`/events/applause/${uid}/29`)
-    .expect(res => {
-      // Remove these since they change
-      delete res.body.event.createdAt
-      delete res.body.event.updatedAt
-    })
-    .expect(200, {
-      event: {
-        id: 29,
-        name: 'applause',
-        identity: {
-          name: 'Rune'
-        },
-        uid,
-        document: {first: true}
-      }
-    }, done)
-  })
-})
-
-describe('GET /events/:name', () => {
-  beforeEach(done => {
-    models.Event.sync({force: true}) // drops table and re-creates it
-    .then(() => {
-      return models.Event.bulkCreate([
-        {uid, name: 'applause', document: {first: true}},
-        {uid, name: 'applause', document: {first: false}},
-        {uid, name: 'stream', document: {meta: 'data'}},
-        {uid, name: 'applause', document: {last: true}},
-      ])
-    })
-    .then(() => done()).catch(error => done(error))
-  })
-
-  it('does pagination and shows total hits', done => {
-    request(app)
-    .get(`/events/applause`)
-    .query({
-      limit: 1,
-      offset: 2
-    })
-    .end((error, response) => {
-      if (error) {
-        return done(error)
-      }
-
-      const result = response.body
-      assert.equal(result.rows.length, 1)
-      assert.property(result, 'pagination')
-
-      const expectedHits = 3
-      assert.propertyVal(result, 'total', expectedHits, 'Should show 3 total hits')
-
-      const row = result.rows[0]
-      assert.propertyVal(row.document, 'last', true)
-      done()
+    it('returns the event requested', done => {
+      request(app)
+      .get(`/events/applause/${uid}/29`)
+      .expect(res => {
+        // Remove these since they change
+        delete res.body.event.createdAt
+        delete res.body.event.updatedAt
+      })
+      .expect(200, {
+        event: {
+          id: 29,
+          name: 'applause',
+          identity: {
+            name: 'Rune'
+          },
+          uid,
+          document: {first: true}
+        }
+      }, done)
     })
   })
-})
 
-/* eslint-enable max-nested-callbacks */
+  describe('GET /events/:name', () => {
+    beforeEach(done => {
+      models.Event.sync({force: true}) // drops table and re-creates it
+      .then(() => {
+        return models.Event.bulkCreate([
+          {uid, name: 'applause', document: {first: true}},
+          {uid, name: 'applause', document: {first: false}},
+          {uid, name: 'stream', document: {meta: 'data'}},
+          {uid, name: 'applause', document: {last: true}},
+        ])
+      })
+      .then(() => done()).catch(error => done(error))
+    })
+
+    it('does pagination and shows total hits', done => {
+      request(app)
+      .get(`/events/applause`)
+      .query({
+        limit: 1,
+        offset: 2
+      })
+      .end((error, response) => {
+        if (error) {
+          return done(error)
+        }
+
+        const result = response.body
+        assert.equal(result.rows.length, 1)
+        assert.property(result, 'pagination')
+
+        const expectedHits = 3
+        assert.propertyVal(result, 'total', expectedHits, 'Should show 3 total hits')
+
+        const row = result.rows[0]
+        assert.propertyVal(row.document, 'last', true)
+        done()
+      })
+    })
+  })
+
+  /* eslint-enable max-nested-callbacks */
