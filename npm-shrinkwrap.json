@@ -6359,7 +6359,7 @@
     },
     "memcached": {
       "version": "2.2.1",
-      "from": "memcached@*",
+      "from": "https://registry.npmjs.org/memcached/-/memcached-2.2.1.tgz",
       "resolved": "https://registry.npmjs.org/memcached/-/memcached-2.2.1.tgz",
       "dependencies": {
         "hashring": {
