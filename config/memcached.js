@@ -1,8 +1,9 @@
-var Memcached = require('memcached');
-var server = 'localhost:11211';
-var options = {
-  namespace: 'zeitgeist:dev:'
-};
+import Memcached from 'memcached'
 
-module.exports = new Memcached(server, options)
+const server = 'localhost:11211'
+const options = {
+  namespace: 'zeitgeist:dev:'
+}
+
+export default new Memcached(server, options)
 

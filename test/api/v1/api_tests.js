@@ -5,7 +5,9 @@ import models from '../../../models'
 import {assert} from 'chai'
 
 import objectAssign from 'object-assign'
+/* eslint-disable import/no-named-as-default */
 import checkpointIdentity from '../../fixtures/checkpointIdentity.json'
+/* eslint-enable import/no-named-as-default */
 
 /* eslint-disable max-nested-callbacks */
 
@@ -56,7 +58,7 @@ function itRequiresIdentity(method, path, okStatus = 200) {
   })
 
   it(`returns ${okStatus} with valid session query param`, done => {
-    const queryPath = path + '?session=' + validSession
+    const queryPath = `${path}?session=${validSession}`
     request(app)[method](queryPath)
     .expect(okStatus, done)
   })
@@ -361,71 +363,71 @@ describe('GET /events/:name/:uid/:id', () => {
           document: {
             first: true
           }},
-        ])
-      })
-      .then(() => done()).catch(error => done(error))
+      ])
     })
-
-    it('returns the event requested', done => {
-      request(app)
-      .get(`/events/applause/${uid}/29`)
-      .expect(res => {
-        // Remove these since they change
-        delete res.body.event.createdAt
-        delete res.body.event.updatedAt
-      })
-      .expect(200, {
-        event: {
-          id: 29,
-          name: 'applause',
-          identity: {
-            name: 'Rune'
-          },
-          uid,
-          document: {first: true}
-        }
-      }, done)
-    })
+    .then(() => done()).catch(error => done(error))
   })
 
-  describe('GET /events/:name', () => {
-    beforeEach(done => {
-      models.Event.sync({force: true}) // drops table and re-creates it
-      .then(() => {
-        return models.Event.bulkCreate([
-          {uid, name: 'applause', document: {first: true}},
-          {uid, name: 'applause', document: {first: false}},
-          {uid, name: 'stream', document: {meta: 'data'}},
-          {uid, name: 'applause', document: {last: true}},
-        ])
-      })
-      .then(() => done()).catch(error => done(error))
+  it('returns the event requested', done => {
+    request(app)
+    .get(`/events/applause/${uid}/29`)
+    .expect(res => {
+      // Remove these since they change
+      Reflect.deleteProperty(res.body.event, 'createdAt')
+      Reflect.deleteProperty(res.body.event, 'updatedAt')
     })
+    .expect(200, {
+      event: {
+        id: 29,
+        name: 'applause',
+        identity: {
+          name: 'Rune'
+        },
+        uid,
+        document: {first: true}
+      }
+    }, done)
+  })
+})
 
-    it('does pagination and shows total hits', done => {
-      request(app)
-      .get(`/events/applause`)
-      .query({
-        limit: 1,
-        offset: 2
-      })
-      .end((error, response) => {
-        if (error) {
-          return done(error)
-        }
-
-        const result = response.body
-        assert.equal(result.rows.length, 1)
-        assert.property(result, 'pagination')
-
-        const expectedHits = 3
-        assert.propertyVal(result, 'total', expectedHits, 'Should show 3 total hits')
-
-        const row = result.rows[0]
-        assert.propertyVal(row.document, 'last', true)
-        done()
-      })
+describe('GET /events/:name', () => {
+  beforeEach(done => {
+    models.Event.sync({force: true}) // drops table and re-creates it
+    .then(() => {
+      return models.Event.bulkCreate([
+        {uid, name: 'applause', document: {first: true}},
+        {uid, name: 'applause', document: {first: false}},
+        {uid, name: 'stream', document: {meta: 'data'}},
+        {uid, name: 'applause', document: {last: true}},
+      ])
     })
+    .then(() => done()).catch(error => done(error))
   })
 
-  /* eslint-enable max-nested-callbacks */
+  it('does pagination and shows total hits', done => {
+    request(app)
+    .get(`/events/applause`)
+    .query({
+      limit: 1,
+      offset: 2
+    })
+    .end((error, response) => {
+      if (error) {
+        return done(error)
+      }
+
+      const result = response.body
+      assert.equal(result.rows.length, 1)
+      assert.property(result, 'pagination')
+
+      const expectedHits = 3
+      assert.propertyVal(result, 'total', expectedHits, 'Should show 3 total hits')
+
+      const row = result.rows[0]
+      assert.propertyVal(row.document, 'last', true)
+      done()
+    })
+  })
+})
+
+/* eslint-enable max-nested-callbacks */

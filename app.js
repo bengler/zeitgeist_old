@@ -29,7 +29,6 @@ app.use((req, res, next) => {
 // error handlers
 app.use((err, req, res, next) => {
   if (res.headersSent) {
-    console.log('HEADERS SENT')
     return next(err)
   }
   res.status(err.status || 500)

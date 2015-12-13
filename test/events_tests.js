@@ -1,6 +1,5 @@
 import models from '../models'
 import {assert} from 'chai'
-import sequelize from 'sequelize'
 
 /* eslint-disable max-nested-callbacks */
 
