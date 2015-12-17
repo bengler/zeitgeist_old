@@ -94,7 +94,6 @@ function V1(options = {}) {
             limit,
             offset,
           },
-          total: queryResult.count,
         })
       })
       .catch(error => {
@@ -111,7 +110,6 @@ function V1(options = {}) {
             limit,
             offset,
           },
-          total: queryResult.count,
         })
       })
       .catch(error => {

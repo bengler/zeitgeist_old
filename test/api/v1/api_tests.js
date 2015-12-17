@@ -404,7 +404,7 @@ describe('GET /events/:name', () => {
     .then(() => done()).catch(error => done(error))
   })
 
-  it('does pagination and shows total hits', done => {
+  it('does pagination', done => {
     request(app)
     .get(`/events/applause`)
     .query({
@@ -419,9 +419,6 @@ describe('GET /events/:name', () => {
       const result = response.body
       assert.equal(result.rows.length, 1)
       assert.property(result, 'pagination')
-
-      const expectedHits = 3
-      assert.propertyVal(result, 'total', expectedHits, 'Should show 3 total hits')
 
       const row = result.rows[0]
       assert.propertyVal(row.document, 'last', true)
