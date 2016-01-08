@@ -10,3 +10,13 @@ namespace :db  do
     puts `$(npm bin)/sequelize db:migrate --url #{url}'`
   end
 end
+
+namespace :migration do
+  desc 'Create migration'
+  task :create do
+    env = ENV['RACK_ENV'] || 'development'
+    config = YAML.load_file('config/database.yml')[env]
+    url = "#{config['adapter']}://#{config['username']}:#{config['password']}@#{config['host']}/#{config['database']}'"
+    puts `$(npm bin)/sequelize migration:create --url #{url}'`
+  end
+end
