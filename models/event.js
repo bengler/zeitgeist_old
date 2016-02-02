@@ -9,6 +9,11 @@ module.exports = function(sequelize, DataTypes) {
     updatedAt: DataTypes.DATE,
     document: DataTypes.JSONB
   }, {
+    defaultScope: {
+      where: {
+        deleted: false
+      }
+    },
     scopes: {
       countByUidAndField: function(uid, field) {
         return {
