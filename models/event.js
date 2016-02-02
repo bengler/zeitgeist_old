@@ -17,12 +17,14 @@ module.exports = function(sequelize, DataTypes) {
     scopes: {
       countByUidAndField: function(uid, field) {
         return {
+          where: {deleted: false},
           attributes: [[sequelize.json('DISTINCT document.time'), 'id']],
           group: ['uid']
         }
       },
       countByUid: function(name) {
         return {
+          where: {deleted: false},
           attributes: ['uid', [sequelize.fn('count', sequelize.col('uid')), 'count']],
           group: ['uid']
         }
