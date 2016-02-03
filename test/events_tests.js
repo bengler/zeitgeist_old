@@ -10,18 +10,22 @@ describe('Events count', () => {
       return models.Event.bulkCreate([
         {
           uid: 1,
+          deleted: false,
           name: 'streamed',
         },
         {
           uid: 1,
+          deleted: false,
           name: 'streamed',
         },
         {
           uid: 1,
+          deleted: false,
           name: 'streamed',
         },
         {
           uid: 2,
+          deleted: false,
           name: 'streamed',
         },
       ])

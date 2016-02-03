@@ -161,21 +161,25 @@ describe('GET /events/:name/ query params', () => {
       return models.Event.bulkCreate([
         {
           uid,
+          deleted: false,
           createdAt: new Date('2015-01-01 14:00:00'),
           name: 'streamed',
         },
         {
           uid,
+          deleted: false,
           createdAt: new Date('2015-01-01'),
           name: 'streamed',
         },
         {
           uid,
+          deleted: false,
           createdAt: new Date('2015-01-02 12:00:00'),
           name: 'streamed',
         },
         {
           uid: 123,
+          deleted: false,
           createdAt: new Date('2015-01-03'),
           name: 'streamed',
         },
@@ -208,6 +212,7 @@ describe('GET /events/:name/ query params', () => {
         models.Event.bulkCreate([
           {
             uid: 'myId',
+            deleted: false,
             name: 'applause',
             createdAt: new Date('2010-01-01 14:00:00'),
             document: {
@@ -216,6 +221,7 @@ describe('GET /events/:name/ query params', () => {
           },
           {
             uid: 'myId',
+            deleted: false,
             name: 'applause',
             createdAt: new Date('2015-01-01 14:00:00'),
             document: {
@@ -224,6 +230,7 @@ describe('GET /events/:name/ query params', () => {
           },
           {
             uid: 'myId',
+            deleted: false,
             name: 'applause',
             createdAt: new Date('2015-01-01 14:00:00'),
             document: {
@@ -232,6 +239,7 @@ describe('GET /events/:name/ query params', () => {
           },
           {
             uid: 'hm',
+            deleted: false,
             createdAt: new Date('2015-01-01 14:00:00'),
             name: 'applause',
           },
@@ -358,6 +366,7 @@ describe('GET /events/:name/:uid/:id', () => {
           createdAt: 0,
           updatedAt: 0,
           uid,
+          deleted: false,
           name: 'applause',
           identity: {name: 'Rune'},
           document: {
@@ -379,6 +388,7 @@ describe('GET /events/:name/:uid/:id', () => {
     .expect(200, {
       event: {
         id: 29,
+        deleted: false,
         name: 'applause',
         identity: {
           name: 'Rune'
@@ -395,10 +405,10 @@ describe('GET /events/:name', () => {
     models.Event.sync({force: true}) // drops table and re-creates it
     .then(() => {
       return models.Event.bulkCreate([
-        {uid, name: 'applause', document: {first: true}},
-        {uid, name: 'applause', document: {first: false}},
-        {uid, name: 'stream', document: {meta: 'data'}},
-        {uid, name: 'applause', document: {last: true}},
+        {uid, name: 'applause', deleted: false, document: {first: true}},
+        {uid, name: 'applause', deleted: false, document: {first: false}},
+        {uid, name: 'stream', deleted: false, document: {meta: 'data'}},
+        {uid, name: 'applause', deleted: false, document: {last: true}},
       ])
     })
     .then(() => done()).catch(error => done(error))

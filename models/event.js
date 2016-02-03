@@ -4,6 +4,7 @@ module.exports = function(sequelize, DataTypes) {
   var Event = sequelize.define('Event', {
     uid: DataTypes.STRING,
     name: DataTypes.STRING,
+    deleted: DataTypes.BOOLEAN,
     identity: DataTypes.JSONB,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
