@@ -79,6 +79,25 @@ describe('POST /events/:name/:uid', () => {
     .expect(400, done)
   })
 
+  it('stores Events with deleted=false', done => {
+    request(app)
+    .post(`/events/upvote/abc`)
+    .set('Cookie', [`checkpoint.session=${validSession}`])
+    .expect(201)
+    .end((err, resp) => {
+      if (err) {
+        return done(err)
+      }
+      models.Event.findOne({where: {uid: 'abc'}})
+      .then(newObj => {
+        assert.ok(newObj)
+        assert.ok(newObj.deleted === false, `deleted is '${newObj.deleted})'`)
+        done()
+      })
+      .catch(findErr => done(findErr))
+    })
+  })
+
   it('has relative path for created resource in Location header', done => {
     request(app)
     .post(`/events/upvote/${uid}`)
