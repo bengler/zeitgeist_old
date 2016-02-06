@@ -60,6 +60,11 @@ function V1(options = {}) {
     const order = '"createdAt" DESC'
     const params = {where, limit, offset, order}
 
+    // thestream cache hack
+    if (req.params.name === 'applause') {
+      res.setHeader('Cache-Control', 'public, max-age=600')
+    }
+
     if (req.query.count === 'true') {
 
       if (req.query.field) {
