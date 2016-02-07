@@ -19,4 +19,12 @@ namespace :migration do
     url = "#{config['adapter']}://#{config['username']}:#{config['password']}@#{config['host']}/#{config['database']}'"
     puts `$(npm bin)/sequelize migration:create --url #{url}'`
   end
+
+  desc 'Rollback'
+  task :rollback do
+    env = ENV['RACK_ENV'] || 'development'
+    config = YAML.load_file('config/database.yml')[env]
+    url = "#{config['adapter']}://#{config['username']}:#{config['password']}@#{config['host']}/#{config['database']}'"
+    puts `$(npm bin)/sequelize db:migrate:undo --url #{url}'`
+  end
 end
