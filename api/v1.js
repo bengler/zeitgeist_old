@@ -141,6 +141,7 @@ function V1(options = {}) {
       uid: req.params.uid,
       deleted: false,
       name: req.params.name,
+      clientIp: req.ip,
       identity: res.locals.checkpointIdentity,
       document: req.body || {}
     }

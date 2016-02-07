@@ -384,6 +384,7 @@ describe('GET /events/:name/:uid/:id', () => {
           id: 29,
           createdAt: 0,
           updatedAt: 0,
+          clientIp: '8.8.4.4',
           uid,
           deleted: false,
           name: 'applause',
@@ -409,6 +410,7 @@ describe('GET /events/:name/:uid/:id', () => {
         id: 29,
         deleted: false,
         name: 'applause',
+        clientIp: '8.8.4.4',
         identity: {
           name: 'Rune'
         },
