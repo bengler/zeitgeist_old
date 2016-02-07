@@ -2,10 +2,16 @@
 
 module.exports = {
   up: function (queryInterface, Sequelize) {
-    return queryInterface.query('CREATE INDEX CONCURRENTLY "Events_name" ON "Events" ( "name" )')
+    return queryInterface.addIndex(
+      'Events',
+      ['name'],
+      {
+        indexName: 'Events_name'
+      }
+    )
   },
 
   down: function (queryInterface, Sequelize) {
-    return queryInterface.query('DROP INDEX CONCURRENTLY IF EXISTS "Events_name"')
+    return queryInterface.removeIndex('Events', 'Events_name')
   }
 };
